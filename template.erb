@@ -1,0 +1,93 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script>
+    document.addEventListener('click', function(e){
+      if(e.target.classList.contains('card-header')){
+        var card = e.target.closest('div.card');
+        var card_body = card.querySelector('.card-body');
+        if(card_body.classList.contains('visually-hidden')){
+          card_body.classList.remove('visually-hidden');
+        } else {
+          card_body.classList.add('visually-hidden');
+        }
+      }
+    })
+  </script>
+  <style>
+    .card-header {
+      cursor: pointer
+    }
+    .no-events {
+      pointer-events: none;
+    }
+    .differ {
+      background: MediumSeaGreen !important;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+
+  <body>
+    <main class="container py-4">
+
+      <% data.each do |db_data| %>
+        
+        <% db_data.each do |(db_name, tables)| %>
+        
+        <h2 class="my-3"><%= db_name.capitalize %></h2>
+        
+        <% tables.each do |table| %>
+          <div class="card" style="margin-top: -2px">
+            
+            <div class="card-header text-body-secondary">
+              <%= table['tablename'] %> &bull; <%= table['operation'].upcase %> &bull; <%= table['timestamp'] %>
+            </div>
+            
+            <div class="card-body visually-hidden">
+
+              <table class="table table-hover table-sm">
+                <thead>
+                  <tr>
+                    <td class="fw-bold text-end col-1 text-body-tertiary">&nbsp;</td>
+                    <td class="fw-bold text-body-tertiary">Было</td>
+                    <td class="fw-bold text-body-tertiary">Стало</td>
+                  </tr>
+                </thead>
+                <tbody>
+
+                <% column_names = [table['old_data'], table['new_data']].select{|t| !t.nil? }.first.keys %>
+
+                <% column_names.each do |key| %>
+                  <% 
+                    if table['operation'].downcase == 'update'
+                      if table['new_data']&.fetch(key) != table['old_data']&.fetch(key)
+                        changed = true
+                      end
+                    end
+                  %>
+
+                  <tr class="col-1">
+                    <td class="fw-bold text-end text-body-tertiary col-2"><%= key %></td>
+                    <td class="col-5 text-truncate" style="max-width: 100px;"><%= table['old_data']&.fetch(key){ nil } %></td>
+                    <td class="col-5 text-truncate <%= 'differ' if changed == true %>" style="max-width: 100px;"><%= table['new_data']&.fetch(key){ nil } %></td>
+                  </tr>
+                <% end %>
+                </tbody>
+              </table>
+            
+            </div>
+          </div>
+        <% end %>
+
+        <% end %>
+      <% end %>
+
+    </main>
+  </body>
+
+</html>

@@ -1,0 +1,13 @@
+- name: service1
+  host: localhost
+  port: 5432
+  user: postgres
+  dbname: postgres
+  password:
+
+- name: service2
+  host: localhost
+  port: 5432
+  user: postgres
+  dbname: postgres
+  password:
